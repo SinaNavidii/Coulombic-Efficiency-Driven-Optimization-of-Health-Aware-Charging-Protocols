@@ -13,7 +13,7 @@ def build_ce_dataframe(
     processed_root: Path,
 ) -> pd.DataFrame:
     """
-    Reproduces your df_ce construction:
+    df_ce construction:
     - Loads CE for each cell
     - Converts to %
     - Shifts to start at 100%
@@ -67,7 +67,6 @@ def build_ce_dataframe(
 
 def find_crossing_soc(socs, ces, threshold=99.0) -> float:
     """
-    Faithful to your working function:
     Finds SOC where CE drops from >= threshold to < threshold (linear interpolation).
     Returns np.nan if no crossing.
     """
@@ -89,7 +88,7 @@ def build_summary_dataframe(
     soh_mapping: Dict[str, float] | None = None,
 ) -> pd.DataFrame:
     """
-    Reproduces your df_summary:
+    Produces df_summary:
     group by (Group, Channel, Cell, C-rate) and compute Crossing_SOC using find_crossing_soc.
     """
     if soh_mapping is None:
@@ -124,7 +123,7 @@ def build_summary_dataframe(
 
 def build_soc_table(df_summary: pd.DataFrame) -> pd.DataFrame:
     """
-    Reproduces your soc_table:
+    soc_table:
       df_summary.groupby(["Numeric C-rate","Discrete SOH"])["Crossing_SOC"].mean().unstack()
     """
     discrete_soh = {"G1": 100, "G2": 90, "G3": 80, "G4": 70}
@@ -141,7 +140,7 @@ def fit_quadratic_boundaries(
     t_fit: np.ndarray | None = None,
 ) -> Tuple[np.ndarray, np.ndarray, Dict[float, np.ndarray]]:
     """
-    Faithful to your quadratic parametric fit:
+    Quadratic parametric fit:
       t_points = [0,1,2,3] maps to SOH = [100,90,80,70]
       fit SOC(t) quadratic per C-rate
       soh_fit = 100 - 10*t_fit
@@ -166,3 +165,54 @@ def fit_quadratic_boundaries(
         curve_dict[float(cr)] = np.polyval(coeffs, t_fit)
 
     return t_fit, soh_fit, curve_dict
+
+
+def find_boundary_crossings(soh_target, soh_fit, curve_dict):
+    idx = np.abs(soh_fit - soh_target).argmin()
+    return {c_rate: float(curve_dict[c_rate][idx]) for c_rate in sorted(curve_dict.keys(), reverse=True)}
+
+
+def build_adaptive_profile(crossings, final_soc=90.0, final_c_rate=1.5):
+    soc_steps = [0]
+    c_rate_steps = [max(crossings.keys())]
+
+    for c_rate in sorted(crossings.keys(), reverse=True):
+        soc = crossings[c_rate]
+        if np.isnan(soc):
+            continue
+
+        soc_steps.append(soc)
+        c_rate_steps.append(c_rate)
+
+        if c_rate != min(crossings.keys()):
+            soc_steps.append(soc)
+            next_c_rate = sorted([c for c in crossings.keys() if c < c_rate])[-1]
+            c_rate_steps.append(next_c_rate)
+
+    last_soc = soc_steps[-1]
+    soc_steps += [last_soc, final_soc]
+    c_rate_steps += [final_c_rate, final_c_rate]
+
+    return soc_steps, c_rate_steps
+
+
+def build_profiles_over_soh(soh_levels, soh_fit, curve_dict, final_soc=90.0, final_c_rate=1.5):
+    profiles = {}
+    for soh in soh_levels:
+        crossings = find_boundary_crossings(soh, soh_fit, curve_dict)
+        soc, c_rate = build_adaptive_profile(crossings, final_soc=final_soc, final_c_rate=final_c_rate)
+        profiles[float(soh)] = {"SOC": soc, "C-rate": c_rate}
+    return profiles
+
+
+def profiles_to_df(profiles):
+    rows = []
+    for soh, p in profiles.items():
+        rows += [{"SOH": soh, "SOC": s, "C-rate": c} for s, c in zip(p["SOC"], p["C-rate"])]
+    return pd.DataFrame(rows)
+
+
+def profile_at_soh(soh, soh_fit, curve_dict, final_soc=90.0, final_c_rate=1.5):
+    crossings = find_boundary_crossings(soh, soh_fit, curve_dict)
+    soc, c_rate = build_adaptive_profile(crossings, final_soc=final_soc, final_c_rate=final_c_rate)
+    return {"SOH": float(soh), "SOC": soc, "C-rate": c_rate}
