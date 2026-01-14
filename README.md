@@ -1,5 +1,4 @@
-# Coulombic Efficiency-Driven Optimization of Health-Aware Charging Protocols  
-### An Experimental Investigation on LCO/Graphite Lithium-Ion Cells
+# Coulombic Efficiency-Driven Optimization of Health-Aware Charging Protocols: An Experimental Investigation on LCO/Graphite Lithium-Ion Cells
 
 This repository contains the code used in the paper **DOI**
 
