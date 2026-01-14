@@ -1,6 +1,6 @@
 # Coulombic Efficiency-Driven Optimization of Health-Aware Charging Protocols: An Experimental Investigation on LCO/Graphite Lithium-Ion Cells
 
-This repository contains the code used in the paper **DOI**
+This repository contains the code used in the paper **DOI to be added**
 
 The workflow combines experimentally derived SOC-sweep Coulombic efficiency (CE) data with two complementary optimization strategies:
 
@@ -50,13 +50,6 @@ Physics-based model (PBM) implemented in MATLAB for plating-aware validation.
 - Supporting electrochemical, degradation, and voltage sub-models  
 - Output files: anodic potential, plating current, and SOH evolution
 
----
-
-## Notes
-
-- SOC and SOH are expressed in **percent (%)**, C-rate in **C**.
-- CE is reported in **percent (%)** and shifted to start at 100% for visualization consistency.
-- The repository reflects the exact structure and analysis used in the manuscript.
 
 ---
 
