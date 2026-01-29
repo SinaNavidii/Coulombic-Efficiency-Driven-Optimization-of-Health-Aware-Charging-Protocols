@@ -1,6 +1,4 @@
-# Coulombic Efficiency-Driven Optimization of Health-Aware Charging Protocols: An Experimental Investigation on LCO/Graphite Lithium-Ion Cells
-
-This repository contains the code used in the paper **[DOI](https://doi.org/10.1039/D5TA09520D)**
+This repository contains the code used in the paper **[Coulombic Efficiency-Driven Optimization of Health-Aware Charging Protocols: An Experimental Investigation on LCO/Graphite Lithium-Ion Cells](https://doi.org/10.1039/D5TA09520D)**
 
 The workflow combines experimentally derived SOC-sweep Coulombic efficiency (CE) data with two complementary optimization strategies:
 
