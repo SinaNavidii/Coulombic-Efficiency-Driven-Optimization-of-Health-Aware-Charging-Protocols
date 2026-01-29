@@ -67,9 +67,3 @@ If you use this code, please cite:
   publisher={Royal Society of Chemistry}
   }  
 
-
----
-
-## License
-
-To be specified.
